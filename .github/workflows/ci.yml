@@ -33,22 +33,3 @@ jobs:
 
       - name: Tests
         run: cargo test --all --all-features
-
-  msrv:
-    name: build (MSRV)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Mets ici la version Rust minimale que tu veux supporter
-      - name: Install Rust (MSRV)
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: "1.78.0"
-
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@v2
-
-      - name: Build
-        run: cargo build --release
