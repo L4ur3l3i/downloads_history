@@ -1,3 +1,5 @@
+use downloads_history::ingest;
+
 fn main() {
-    println!("Hello, world!");
+    ingest::ingest::ingest();
 }
