@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use rusqlite::{params, Connection};
+use rusqlite::{Connection, params};
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::Read;
@@ -98,7 +98,9 @@ fn mtime_unix(path: &Path) -> Result<i64> {
 
 fn year_month_from_mtime(secs: i64) -> String {
     // Minimal: derive YYYY-MM from unix timestamp using chrono.
-    let dt = chrono::DateTime::<chrono::Utc>::from(UNIX_EPOCH + std::time::Duration::from_secs(secs as u64));
+    let dt = chrono::DateTime::<chrono::Utc>::from(
+        UNIX_EPOCH + std::time::Duration::from_secs(secs as u64),
+    );
     format!("{:04}-{:02}", dt.year(), dt.month())
 }
 
@@ -124,15 +126,16 @@ fn ingest(incoming: &Path, archives: &Path, db: &Path) -> Result<()> {
     // Walk only files (not dirs)
     let mut processed = 0u64;
 
-    for entry in WalkDir::new(incoming).min_depth(1).into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new(incoming)
+        .min_depth(1)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
         if !entry.file_type().is_file() {
             continue;
         }
         let src = entry.path().to_path_buf();
-        let filename = entry
-            .file_name()
-            .to_string_lossy()
-            .to_string();
+        let filename = entry.file_name().to_string_lossy().to_string();
 
         let meta = fs::metadata(&src)?;
         let size_bytes = meta.len() as i64;
@@ -149,7 +152,10 @@ fn ingest(incoming: &Path, archives: &Path, db: &Path) -> Result<()> {
                 .file_stem()
                 .and_then(|s| s.to_str())
                 .unwrap_or("file");
-            let ext = Path::new(&filename).extension().and_then(|e| e.to_str()).unwrap_or("");
+            let ext = Path::new(&filename)
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or("");
             let mut i = 1;
             loop {
                 let candidate = if ext.is_empty() {
@@ -206,7 +212,10 @@ fn search(db: &Path, query: &str) -> Result<()> {
 
     for r in rows {
         let (path, size, mtime, sha) = r?;
-        println!("{path}\n  size={size} mtime={mtime} sha256={}\n", &sha[..16]);
+        println!(
+            "{path}\n  size={size} mtime={mtime} sha256={}\n",
+            &sha[..16]
+        );
     }
 
     Ok(())
